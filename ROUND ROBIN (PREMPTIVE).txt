@@ -1,0 +1,69 @@
+#include <iostream>
+#include <queue>
+using namespace std;
+
+struct Process {
+    int id, at, bt, rt, wt, tat, ct;
+};
+
+int main() {
+    int n, tq, time = 0, completed = 0;
+    float total_wt = 0, total_tat = 0;
+
+    cout << "Enter the number of processes: ";
+    cin >> n;
+    cout << "Enter the time quantum: ";
+    cin >> tq;
+
+    Process p[n];
+    cout << "Enter Arrival Time and Burst Time for each process:\n";
+    for (int i = 0; i < n; i++) {
+        p[i].id = i + 1;
+        cin >> p[i].at >> p[i].bt;
+        p[i].rt = p[i].bt;
+        p[i].wt = p[i].tat = 0;
+    }
+
+    queue<int> q;
+    bool inQueue[n] = {false};
+    q.push(0);
+    inQueue[0] = true;
+
+    while (completed < n) {
+        int i = q.front();
+        q.pop();
+
+        if (p[i].rt > tq) {
+            time += tq;
+            p[i].rt -= tq;
+        } else {
+            time += p[i].rt;
+            p[i].rt = 0;
+            completed++;
+            p[i].ct = time;
+            p[i].tat = p[i].ct - p[i].at;
+            p[i].wt = p[i].tat - p[i].bt;
+            total_wt += p[i].wt;
+            total_tat += p[i].tat;
+        }
+
+        for (int j = 0; j < n; j++) {
+            if (j != i && p[j].rt > 0 && p[j].at <= time && !inQueue[j]) {
+                q.push(j);
+                inQueue[j] = true;
+            }
+        }
+        if (p[i].rt > 0) q.push(i);
+    }
+
+    cout << "\nProcess\tAT\tBT\tWT\tTAT\n";
+    for (int i = 0; i < n; i++) {
+        cout << p[i].id << '\t' << p[i].at << '\t' << p[i].bt << '\t'
+             << p[i].wt << '\t' << p[i].tat << '\n';
+    }
+
+    cout << "\nAverage Waiting Time: " << total_wt / n;
+    cout << "\nAverage Turnaround Time: " << total_tat / n;
+
+    return 0;
+}

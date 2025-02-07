@@ -1,0 +1,76 @@
+#include <iostream>
+#include <vector>
+using namespace std;
+
+bool isSafe(int n, int m, vector<vector<int>> &need, vector<vector<int>> &allocation, vector<int> &available) {
+    vector<bool> finished(n, false);
+    vector<int> work = available;
+    vector<int> safeSequence;
+    int count = 0;
+
+    while (count < n) {
+        bool found = false;
+        for (int i = 0; i < n; i++) {
+            if (!finished[i]) {
+                bool canAllocate = true;
+                for (int j = 0; j < m; j++)
+                    if (need[i][j] > work[j]) {
+                        canAllocate = false;
+                        break;
+                    }
+                if (canAllocate) {
+                    for (int j = 0; j < m; j++)
+                        work[j] += allocation[i][j];
+                    safeSequence.push_back(i);
+                    finished[i] = true;
+                    found = true;
+                    count++;
+                }
+            }
+        }
+        if (!found) {
+            cout << "System is not in a safe state.\n";
+            return false;
+        }
+    }
+
+    cout << "System is in a safe state.\nSafe Sequence: ";
+    for (int i : safeSequence) cout << "P" << i << " ";
+    cout << endl;
+    return true;
+}
+
+int main() {
+    int n, m;
+    cout << "Enter number of processes: ";
+    cin >> n;
+    cout << "Enter number of resource types: ";
+    cin >> m;
+
+    vector<vector<int>> max(n, vector<int>(m));
+    vector<vector<int>> allocation(n, vector<int>(m));
+    vector<int> available(m);
+
+    cout << "Enter Max Matrix:\n";
+    for (int i = 0; i < n; i++)
+        for (int j = 0; j < m; j++)
+            cin >> max[i][j];
+
+    cout << "Enter Allocation Matrix:\n";
+    for (int i = 0; i < n; i++)
+        for (int j = 0; j < m; j++)
+            cin >> allocation[i][j];
+
+    cout << "Enter Available Resources:\n";
+    for (int i = 0; i < m; i++)
+        cin >> available[i];
+
+    vector<vector<int>> need(n, vector<int>(m));
+    for (int i = 0; i < n; i++)
+        for (int j = 0; j < m; j++)
+            need[i][j] = max[i][j] - allocation[i][j];
+
+    isSafe(n, m, need, allocation, available);
+
+    return 0;
+}

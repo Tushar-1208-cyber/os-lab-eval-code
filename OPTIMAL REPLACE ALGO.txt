@@ -1,0 +1,51 @@
+#include <iostream>
+#include <vector>
+#include <queue>
+#include <algorithm>
+using namespace std;
+
+// Optimal Page Replacement
+int optimal(const vector<int>& pages, int capacity) {
+    vector<int> frame;
+    int faults = 0;
+    for (size_t i = 0; i < pages.size(); i++) {
+        auto it = find(frame.begin(), frame.end(), pages[i]);
+        if (it == frame.end()) { // Page fault
+            faults++;
+            if (frame.size() == capacity) {
+                int farthest = -1, idx = -1;
+                for (size_t j = 0; j < frame.size(); j++) {
+                    size_t nextUse = pages.size();
+                    for (size_t k = i + 1; k < pages.size(); k++) {
+                        if (pages[k] == frame[j]) {
+                            nextUse = k;
+                            break;
+                        }
+                    }
+                    if (nextUse > farthest) farthest = nextUse, idx = j;
+                }
+                frame.erase(frame.begin() + idx); // Remove farthest used page
+            }
+            frame.push_back(pages[i]);
+        }
+    }
+    return faults;
+}
+
+int main() {
+    int capacity, n;
+    cout << "Enter the number of frames: ";
+    cin >> capacity;
+
+    cout << "Enter the number of pages: ";
+    cin >> n;
+
+    vector<int> pages(n);
+    cout << "Enter the pages: ";
+    for (int i = 0; i < n; i++) cin >> pages[i];
+
+    int pageFaults = optimal(pages, capacity);
+    cout << "Page Faults (Optimal): " << pageFaults << endl;
+
+    return 0;
+}

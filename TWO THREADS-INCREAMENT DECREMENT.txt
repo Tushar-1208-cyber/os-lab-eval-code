@@ -1,0 +1,36 @@
+#include <iostream>
+#include <thread>
+#include <mutex>
+using namespace std;
+
+int shared_var = 0; // Shared variable
+mutex mtx;          // Mutex for critical section
+
+void increment() {
+    for (int i = 0; i < 10; i++) {
+        mtx.lock();
+        shared_var++;
+        cout << "Incremented: " << shared_var << endl;
+        mtx.unlock();
+        this_thread::sleep_for(chrono::milliseconds(100));
+    }
+}
+
+void decrement() {
+    for (int i = 0; i < 10; i++) {
+        mtx.lock();
+        shared_var--;
+        cout << "Decremented: " << shared_var << endl;
+        mtx.unlock();
+        this_thread::sleep_for(chrono::milliseconds(100));
+    }
+}
+
+int main() {
+    thread t1(increment), t2(decrement);
+    t1.join();
+    t2.join();
+
+    cout << "Final Value of Shared Variable: " << shared_var << endl;
+    return 0;
+}

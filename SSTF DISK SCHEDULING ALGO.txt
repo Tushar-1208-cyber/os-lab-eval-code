@@ -1,0 +1,35 @@
+#include <iostream>
+#include <vector>
+#include <cmath>
+#include <algorithm>
+using namespace std;
+
+int sstf(vector<int> requests, int head) {
+    int totalSeek = 0;
+    while (!requests.empty()) {
+        auto it = min_element(requests.begin(), requests.end(), 
+            [head](int a, int b) { return abs(a - head) < abs(b - head); });
+        totalSeek += abs(*it - head); // Calculate seek distance
+        head = *it;                   // Move to the closest request
+        requests.erase(it);           // Remove the served request
+    }
+    return totalSeek;
+}
+
+int main() {
+    int n, head;
+    cout << "Enter the number of requests: ";
+    cin >> n;
+
+    vector<int> requests(n);
+    cout << "Enter the requests: ";
+    for (int& req : requests) cin >> req;
+
+    cout << "Enter the initial head position: ";
+    cin >> head;
+
+    int totalSeek = sstf(requests, head);
+    cout << "Total Seek Time (SSTF): " << totalSeek << endl;
+
+    return 0;
+}

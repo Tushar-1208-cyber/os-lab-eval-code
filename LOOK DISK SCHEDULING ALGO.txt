@@ -1,0 +1,149 @@
+#include <iostream>
+#include <vector>
+#include <cmath>
+#include <algorithm>
+using namespace std;
+
+// FIFO Disk Scheduling
+int fifo(const vector<int>& requests, int head) {
+    int totalSeek = 0;
+    for (int request : requests) {
+        totalSeek += abs(request - head);
+        head = request;
+    }
+    return totalSeek;
+}
+
+// SSTF Disk Scheduling
+int sstf(vector<int> requests, int head) {
+    int totalSeek = 0;
+    while (!requests.empty()) {
+        auto it = min_element(requests.begin(), requests.end(),
+                              [head](int a, int b) { return abs(a - head) < abs(b - head); });
+        totalSeek += abs(*it - head);
+        head = *it;
+        requests.erase(it);
+    }
+    return totalSeek;
+}
+
+// SCAN Disk Scheduling
+int scan(vector<int> requests, int head, int direction, int disk_size) {
+    int totalSeek = 0;
+    vector<int> left, right;
+    for (int req : requests) {
+        if (req < head) left.push_back(req);
+        else right.push_back(req);
+    }
+    sort(left.begin(), left.end());
+    sort(right.begin(), right.end());
+
+    if (direction == 1) {
+        totalSeek += (disk_size - 1 - head);
+        head = disk_size - 1;
+        for (int req : right) {
+            totalSeek += abs(req - head);
+            head = req;
+        }
+        totalSeek += head;
+        head = 0;
+        for (int req : left) {
+            totalSeek += abs(req - head);
+            head = req;
+        }
+    } else {
+        totalSeek += head;
+        head = 0;
+        for (int req : left) {
+            totalSeek += abs(req - head);
+            head = req;
+        }
+        totalSeek += (disk_size - 1 - head);
+        head = disk_size - 1;
+        for (int req : right) {
+            totalSeek += abs(req - head);
+            head = req;
+        }
+    }
+    return totalSeek;
+}
+
+// C-SCAN Disk Scheduling
+int cscan(vector<int> requests, int head, int direction, int disk_size) {
+    int totalSeek = 0;
+    vector<int> left, right;
+    for (int req : requests) {
+        if (req < head) left.push_back(req);
+        else right.push_back(req);
+    }
+    sort(left.begin(), left.end());
+    sort(right.begin(), right.end());
+
+    if (direction == 1) {
+        totalSeek += (disk_size - 1 - head);
+        head = disk_size - 1;
+        for (int req : right) {
+            totalSeek += abs(req - head);
+            head = req;
+        }
+        totalSeek += head;
+        head = 0;
+        for (int req : left) {
+            totalSeek += abs(req - head);
+            head = req;
+        }
+    } else {
+        totalSeek += head;
+        head = 0;
+        for (int req : left) {
+            totalSeek += abs(req - head);
+            head = req;
+        }
+        totalSeek += (disk_size - 1 - head);
+        head = disk_size - 1;
+        for (int req : right) {
+            totalSeek += abs(req - head);
+            head = req;
+        }
+    }
+    return totalSeek;
+}
+
+int main() {
+    int n, head, direction, disk_size;
+    cout << "Enter the number of requests: ";
+    cin >> n;
+    
+    cout << "Enter the disk size: ";
+    cin >> disk_size;
+
+    vector<int> requests(n);
+    cout << "Enter the requests: ";
+    for (int& req : requests) cin >> req;
+
+    cout << "Enter the initial head position: ";
+    cin >> head;
+
+    cout << "Enter the direction (1 for right, 0 for left): ";
+    cin >> direction;
+
+    int totalSeek;
+
+    // FIFO
+    totalSeek = fifo(requests, head);
+    cout << "Total Seek Time (FIFO): " << totalSeek << endl;
+
+    // SSTF
+    totalSeek = sstf(requests, head);
+    cout << "Total Seek Time (SSTF): " << totalSeek << endl;
+
+    // SCAN
+    totalSeek = scan(requests, head, direction, disk_size);
+    cout << "Total Seek Time (SCAN): " << totalSeek << endl;
+
+    // C-SCAN
+    totalSeek = cscan(requests, head, direction, disk_size);
+    cout << "Total Seek Time (C-SCAN): " << totalSeek << endl;
+
+    return 0;
+}

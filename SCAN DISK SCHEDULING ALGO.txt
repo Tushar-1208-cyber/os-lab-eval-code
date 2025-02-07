@@ -1,0 +1,87 @@
+#include <iostream>
+#include <vector>
+#include <algorithm>
+using namespace std;
+
+int scan(vector<int> requests, int head, int direction, int disk_size) {
+    int totalSeek = 0;
+    vector<int> left, right;
+
+    // Divide requests into left and right of the head
+    for (int req : requests) {
+        if (req < head) left.push_back(req);
+        else right.push_back(req);
+    }
+
+    // Sort the requests
+    sort(left.begin(), left.end());
+    sort(right.begin(), right.end());
+
+    // Move to the right end first
+    if (direction == 1) {
+        totalSeek += (disk_size - 1 - head);  // Seek from current head to the end of the disk
+        head = disk_size - 1;
+
+        // Serve requests to the right
+        for (int req : right) {
+            totalSeek += abs(req - head);
+            head = req;
+        }
+
+        // Reverse direction
+        totalSeek += head;  // Move to the beginning of the disk
+        head = 0;
+
+        // Serve requests to the left
+        for (int req : left) {
+            totalSeek += abs(req - head);
+            head = req;
+        }
+    }
+    else {  // Move to the left end first
+        totalSeek += head;  // Seek from current head to the beginning of the disk
+        head = 0;
+
+        // Serve requests to the left
+        for (int req : left) {
+            totalSeek += abs(req - head);
+            head = req;
+        }
+
+        // Reverse direction
+        totalSeek += (disk_size - 1 - head);  // Move to the end of the disk
+        head = disk_size - 1;
+
+        // Serve requests to the right
+        for (int req : right) {
+            totalSeek += abs(req - head);
+            head = req;
+        }
+    }
+
+    return totalSeek;
+}
+
+int main() {
+    int n, head, direction, disk_size;
+    cout << "Enter the number of requests: ";
+    cin >> n;
+
+    cout << "Enter the disk size: ";
+    cin >> disk_size;
+
+    vector<int> requests(n);
+    cout << "Enter the requests: ";
+    for (int& req : requests) cin >> req;
+
+    cout << "Enter the initial head position: ";
+    cin >> head;
+
+    cout << "Enter the direction (1 for right, 0 for left): ";
+    cin >> direction;
+
+    int totalSeek = scan(requests, head, direction, disk_size);
+    cout << "Total Seek Time (SCAN): " << totalSeek << endl;
+
+    return 0;
+}

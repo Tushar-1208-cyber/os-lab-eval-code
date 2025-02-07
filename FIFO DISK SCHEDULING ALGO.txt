@@ -1,0 +1,34 @@
+#include <iostream>
+#include <vector>
+#include <cmath>
+using namespace std;
+
+int fifo(const vector<int>& requests, int head) {
+    int totalSeek = 0;
+    int current = head;
+
+    for (int request : requests) {
+        totalSeek += abs(request - current); // Calculate seek distance
+        current = request;                   // Move to the requested track
+    }
+
+    return totalSeek;
+}
+
+int main() {
+    int n, head;
+    cout << "Enter the number of requests: ";
+    cin >> n;
+
+    vector<int> requests(n);
+    cout << "Enter the requests: ";
+    for (int& req : requests) cin >> req;
+
+    cout << "Enter the initial head position: ";
+    cin >> head;
+
+    int totalSeek = fifo(requests, head);
+    cout << "Total Seek Time (FIFO): " << totalSeek << endl;
+
+    return 0;
+}

@@ -1,0 +1,87 @@
+#include <iostream>
+#include <vector>
+#include <queue>
+#include <algorithm>
+using namespace std;
+
+// FIFO Page Replacement
+int fifo(const vector<int>& pages, int capacity) {
+    queue<int> frame;
+    vector<bool> inFrame(1000, false); // Assuming page numbers <= 1000
+    int faults = 0;
+    for (int page : pages) {
+        if (!inFrame[page]) {
+            faults++;
+            if (frame.size() == capacity) {
+                inFrame[frame.front()] = false;
+                frame.pop();
+            }
+            frame.push(page);
+            inFrame[page] = true;
+        }
+    }
+    return faults;
+}
+
+// LRU Page Replacement
+int lru(const vector<int>& pages, int capacity) {
+    vector<int> frame;
+    int faults = 0;
+    for (int page : pages) {
+        auto it = find(frame.begin(), frame.end(), page);
+        if (it == frame.end()) {
+            faults++;
+            if (frame.size() == capacity) frame.erase(frame.begin());
+        } else frame.erase(it);
+        frame.push_back(page);
+    }
+    return faults;
+}
+
+// Optimal Page Replacement
+int optimal(const vector<int>& pages, int capacity) {
+    vector<int> frame;
+    int faults = 0;
+    for (size_t i = 0; i < pages.size(); i++) {
+        auto it = find(frame.begin(), frame.end(), pages[i]);
+        if (it == frame.end()) {
+            faults++;
+            if (frame.size() == capacity) {
+                int farthest = -1, idx = -1;
+                for (size_t j = 0; j < frame.size(); j++) {
+                    int nextUse = pages.size();
+                    for (size_t k = i + 1; k < pages.size(); k++) {
+                        if (pages[k] == frame[j]) {
+                            nextUse = k;
+                            break;
+                        }
+                    }
+                    if (nextUse > farthest) farthest = nextUse, idx = j;
+                }
+                frame.erase(frame.begin() + idx);
+            }
+            frame.push_back(pages[i]);
+        }
+    }
+    return faults;
+}
+
+int main() {
+    int capacity, n, choice;
+    cout << "Enter frames and pages count: ";
+    cin >> capacity >> n;
+
+    vector<int> pages(n);
+    cout << "Enter pages: ";
+    for (int& page : pages) cin >> page;
+
+    cout << "\nChoose algorithm (1: FIFO, 2: LRU, 3: Optimal): ";
+    cin >> choice;
+
+    int faults = (choice == 1 ? fifo(pages, capacity) : 
+                 (choice == 2 ? lru(pages, capacity) : 
+                 optimal(pages, capacity)));
+    cout << "Page Faults: " << faults << endl;
+
+    return 0;
+}

@@ -1,0 +1,72 @@
+#include <iostream>
+#include <vector>
+using namespace std;
+
+void nextFit(vector<int>& blockSize, vector<int>& processSize, int m, int n) {
+    vector<int> allocation(n, -1); // Stores allocated block for each process
+    int lastAllocated = 0; // Keeps track of the last allocated block
+
+    // Traverse through all processes and find the next fit block for each process
+    for (int i = 0; i < n; i++) {
+        int j = lastAllocated;
+        while (j < m) {
+            if (blockSize[j] >= processSize[i]) {
+                allocation[i] = j;
+                blockSize[j] -= processSize[i]; // Reduce the size of the block
+                lastAllocated = j; // Update the last allocated block
+                break;
+            }
+            j++;
+        }
+
+        // If no block found, search from the beginning
+        if (allocation[i] == -1) {
+            j = 0;
+            while (j < lastAllocated) {
+                if (blockSize[j] >= processSize[i]) {
+                    allocation[i] = j;
+                    blockSize[j] -= processSize[i];
+                    lastAllocated = j;
+                    break;
+                }
+                j++;
+            }
+        }
+    }
+
+    // Print the allocation result
+    cout << "\nProcess No.\tProcess Size\tBlock No.\tBlock Size\n";
+    for (int i = 0; i < n; i++) {
+        cout << i + 1 << "\t\t" << processSize[i] << "\t\t";
+        if (allocation[i] != -1)
+            cout << allocation[i] + 1 << "\t\t" << blockSize[allocation[i]] + processSize[i] << endl;
+        else
+            cout << "Not Allocated" << endl;
+    }
+}
+
+int main() {
+    int m, n;
+
+    cout << "Enter the number of memory blocks: ";
+    cin >> m;
+
+    vector<int> blockSize(m);
+    cout << "Enter the sizes of memory blocks:\n";
+    for (int i = 0; i < m; i++) {
+        cin >> blockSize[i];
+    }
+
+    cout << "Enter the number of processes: ";
+    cin >> n;
+
+    vector<int> processSize(n);
+    cout << "Enter the sizes of processes:\n";
+    for (int i = 0; i < n; i++) {
+        cin >> processSize[i];
+    }
+
+    nextFit(blockSize, processSize, m, n);
+
+    return 0;
+}

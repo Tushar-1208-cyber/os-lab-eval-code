@@ -1,0 +1,62 @@
+#include <iostream>
+#include <vector>
+#include <climits>
+using namespace std;
+
+void bestFit(vector<int>& blockSize, vector<int>& processSize, int m, int n) {
+    vector<int> allocation(n, -1); // Stores allocated block for each process
+
+    // Traverse through all processes and find the best fit block for each process
+    for (int i = 0; i < n; i++) {
+        int bestIdx = -1;
+        int minSize = INT_MAX;
+
+        for (int j = 0; j < m; j++) {
+            if (blockSize[j] >= processSize[i] && blockSize[j] - processSize[i] < minSize) {
+                minSize = blockSize[j] - processSize[i];
+                bestIdx = j;
+            }
+        }
+
+        if (bestIdx != -1) {
+            allocation[i] = bestIdx;
+            blockSize[bestIdx] -= processSize[i]; // Reduce the size of the block
+        }
+    }
+
+    // Print the allocation result
+    cout << "\nProcess No.\tProcess Size\tBlock No.\tBlock Size\n";
+    for (int i = 0; i < n; i++) {
+        cout << i + 1 << "\t\t" << processSize[i] << "\t\t";
+        if (allocation[i] != -1)
+            cout << allocation[i] + 1 << "\t\t" << blockSize[allocation[i]] + processSize[i] << endl;
+        else
+            cout << "Not Allocated" << endl;
+    }
+}
+
+int main() {
+    int m, n;
+
+    cout << "Enter the number of memory blocks: ";
+    cin >> m;
+
+    vector<int> blockSize(m);
+    cout << "Enter the sizes of memory blocks:\n";
+    for (int i = 0; i < m; i++) {
+        cin >> blockSize[i];
+    }
+
+    cout << "Enter the number of processes: ";
+    cin >> n;
+
+    vector<int> processSize(n);
+    cout << "Enter the sizes of processes:\n";
+    for (int i = 0; i < n; i++) {
+        cin >> processSize[i];
+    }
+
+    bestFit(blockSize, processSize, m, n);
+
+    return 0;
+}

@@ -1,0 +1,40 @@
+#include <iostream>
+#include <vector>
+#include <algorithm>
+using namespace std;
+
+// LRU Page Replacement
+int lru(const vector<int>& pages, int capacity) {
+    vector<int> frame;
+    int faults = 0;
+
+    for (int page : pages) {
+        auto it = find(frame.begin(), frame.end(), page);
+        if (it == frame.end()) { // Page fault
+            faults++;
+            if (frame.size() == capacity) frame.erase(frame.begin()); // Remove LRU page
+        } else {
+            frame.erase(it); // Remove to add as most recently used
+        }
+        frame.push_back(page); // Add page as most recently used
+    }
+    return faults;
+}
+
+int main() {
+    int capacity, n;
+    cout << "Enter the number of frames: ";
+    cin >> capacity;
+
+    cout << "Enter the number of pages: ";
+    cin >> n;
+
+    vector<int> pages(n);
+    cout << "Enter the pages: ";
+    for (int i = 0; i < n; i++) cin >> pages[i];
+
+    int pageFaults = lru(pages, capacity);
+    cout << "Page Faults (LRU): " << pageFaults << endl;
+
+    return 0;
+}

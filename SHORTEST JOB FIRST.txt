@@ -1,0 +1,43 @@
+#include <iostream>
+#include <algorithm>
+using namespace std;
+
+struct Process {
+    int bt, wt, tat;
+};
+
+bool compare(Process a, Process b) {
+    return a.bt < b.bt;
+}
+
+int main() {
+    int n;
+    cout << "Enter the number of processes: ";
+    cin >> n;
+
+    Process p[n];
+    cout << "Enter burst times:\n";
+    for (int i = 0; i < n; i++) cin >> p[i].bt;
+
+    sort(p, p + n, compare);
+
+    p[0].wt = 0;
+    for (int i = 1; i < n; i++)
+        p[i].wt = p[i - 1].wt + p[i - 1].bt;
+
+    float total_wt = 0, total_tat = 0;
+    for (int i = 0; i < n; i++) {
+        p[i].tat = p[i].wt + p[i].bt;
+        total_wt += p[i].wt;
+        total_tat += p[i].tat;
+    }
+
+    cout << "\nProcess\tBT\tWT\tTAT\n";
+    for (int i = 0; i < n; i++)
+        cout << i + 1 << '\t' << p[i].bt << '\t' << p[i].wt << '\t' << p[i].tat << '\n';
+
+    cout << "\nAverage Waiting Time: " << total_wt / n;
+    cout << "\nAverage Turnaround Time: " << total_tat / n;
+
+    return 0;
+}
